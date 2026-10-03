@@ -1,52 +1,76 @@
 import streamlit as st
 from PIL import Image
+import urllib.parse
 import requests
 import io
+import time
 
 st.set_page_config(page_title="Jewellery AI Studio", layout="wide")
-st.title("💎 Jewellery AI Studio")
-st.write("Professional Jewellery Photoshoot Generator")
-
-hf_token = st.sidebar.text_input("Enter Hugging Face API Token:", type="password")
+st.title("💎 Jewellery AI Studio (Instant)")
+st.write("Instant Free AI Jewellery Photoshoot Generator")
 
 uploaded_file = st.file_uploader("Upload Jewellery Photo", type=["jpg", "jpeg", "png"])
 
 if uploaded_file:
     orig_img = Image.open(uploaded_file)
-    st.image(orig_img, caption="Original Jewellery", width=350)
+    st.image(orig_img, caption="Original Jewellery Reference", width=320)
     
-    model_style = st.selectbox(
-        "Choose Model Style / Setting:",
-        [
-            "Royal Indian Bride wearing traditional Silk Saree, warm studio lighting",
-            "Modern elegant woman wearing evening gown, soft cinematic spotlight",
-            "Minimalist aesthetic model, close-up portrait, clean neutral studio background"
-        ]
-    )
-    
-    custom_prompt = st.text_input("Extra Details (Optional):", value="")
-    
-    if st.button("Generate Professional Shoot"):
-        if not hf_token:
-            st.error("Please enter Hugging Face Token in the sidebar.")
-        else:
-            with st.spinner("AI model shoot generate ho raha hai..."):
-                API_URL = "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-xl-base-1.0"
-                headers = {"Authorization": f"Bearer {hf_token}"}
-                
-                final_prompt = f"Professional jewelry photography, sharp focus, {model_style}, {custom_prompt}, 8k uhd, highly detailed, realistic skin texture"
-                payload = {
-                    "inputs": final_prompt,
-                    "parameters": {"negative_prompt": "blurry, deformed, low quality, distorted"}
-                }
-                
-                try:
-                    response = requests.post(API_URL, headers=headers, json=payload)
-                    if response.status_code == 200:
-                        res_img = Image.open(io.BytesIO(response.content))
-                        st.success("Generation Complete!")
-                        st.image(res_img, caption="AI Generated Shoot", use_container_width=True)
-                    else:
-                        st.warning("Model abhi load ho raha hai. Kripya 30 second baad dobara click karein.")
-                except Exception as e:
-                    st.error(f"Error: {e}")
+    col1, col2 = st.columns(2)
+    with col1:
+        model_style = st.selectbox(
+            "Model & Background Style:",
+            [
+                "Royal Indian Bride wearing traditional Red and Gold Silk Saree, royal bridal look, professional studio lighting",
+                "Elegant Indian woman in Navy Blue designer saree, realistic skin texture, modern bridal portrait",
+                "Close-up high-end luxury jewellery photoshoot, soft cinematic spotlight, blurry royal background",
+                "Modern elegant woman wearing emerald green evening attire, studio photoshoot"
+            ]
+        )
+    with col2:
+        ornament_type = st.selectbox(
+            "Ornament Type:",
+            [
+                "Gold necklace with intricate filigree and hanging droplets",
+                "Gold choker necklace set",
+                "Traditional gold earrings jhumka",
+                "Gold bangles and kada set"
+            ]
+        )
+
+    custom_notes = st.text_input("Extra Details (Optional):", placeholder="e.g. glowing jewelry, 8k uhd, sharp focus")
+
+    if st.button("Generate Instant Shoot"):
+        with st.spinner("AI model shoot generate ho raha hai (instant)..."):
+            # Construct high quality realistic prompt
+            full_prompt = (
+                f"hyperrealistic professional jewelry shoot, authentic Indian gold craftsmanship, "
+                f"{ornament_type}, worn by {model_style}, {custom_notes}, "
+                f"intricate gold filigree details, sharp focus, 8k uhd photography, dramatic studio rim lighting, photorealistic skin pores"
+            )
+            
+            encoded_prompt = urllib.parse.quote(full_prompt)
+            # Seed to ensure fresh generation every click
+            seed = int(time.time())
+            image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=768&height=1024&seed={seed}&model=flux&nologo=true"
+            
+            try:
+                response = requests.get(image_url, timeout=40)
+                if response.status_code == 200:
+                    generated_img = Image.open(io.BytesIO(response.content))
+                    st.success("Photo Generated Successfully!")
+                    st.image(generated_img, caption="Generated Studio Shoot", use_container_width=True)
+                    
+                    # Download button
+                    buf = io.BytesIO()
+                    generated_img.save(buf, format="JPEG")
+                    byte_im = buf.getvalue()
+                    st.download_button(
+                        label="Download High-Res Image",
+                        data=byte_im,
+                        file_name="jewellery_shoot.jpg",
+                        mime="image/jpeg"
+                    )
+                else:
+                    st.error("Generation me error aaya. Kripya dubara click karein.")
+            except Exception as e:
+                st.error(f"Error: {e}")
