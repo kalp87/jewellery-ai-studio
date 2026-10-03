@@ -31,7 +31,7 @@ if uploaded_file:
             st.error("Please enter Hugging Face Token in the sidebar.")
         else:
             with st.spinner("AI model shoot generate ho raha hai..."):
-                API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0"
+                API_URL = "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-xl-base-1.0"
                 headers = {"Authorization": f"Bearer {hf_token}"}
                 
                 final_prompt = f"Professional jewelry photography, sharp focus, {model_style}, {custom_prompt}, 8k uhd, highly detailed, realistic skin texture"
