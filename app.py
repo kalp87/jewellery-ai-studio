@@ -4,8 +4,8 @@ import urllib.parse
 import time
 
 st.set_page_config(page_title="Jewellery AI Studio", layout="wide")
-st.title("💎 Jewellery AI Studio (Fast & Reliable)")
-st.write("Instant Free AI Jewellery Photoshoot Generator")
+st.title("💎 Jewellery AI Studio (100% Free)")
+st.write("Professional Free AI Jewellery Photoshoot Generator")
 
 uploaded_file = st.file_uploader("Upload Jewellery Photo", type=["jpg", "jpeg", "png"])
 
@@ -16,40 +16,31 @@ if uploaded_file:
     col1, col2 = st.columns(2)
     with col1:
         model_style = st.selectbox(
-            "Model & Background Style:",
+            "Model & Setting Style:",
             [
-                "Royal Indian bride in red bridal saree, studio lights, closeup jewelry portrait",
-                "Indian royal woman in blue banarasi silk saree, elegant jewelry photoshoot",
-                "Modern elegant woman in luxury emerald attire, clean studio portrait",
-                "High end luxury jewelry studio showcase, blurred bokeh background"
+                "Royal Indian Bride wearing traditional Silk Saree, studio portrait",
+                "Elegant woman in designer royal attire, cinematic lighting",
+                "Close-up luxury jewelry portrait, soft studio rim lighting"
             ]
         )
     with col2:
         ornament_type = st.selectbox(
-            "Ornament Type:",
+            "Jewellery Details:",
             [
-                "intricate gold filigree necklace with hanging tassels",
-                "traditional gold necklace set with ruby stones",
-                "heavy Indian bridal gold jewelry collection",
-                "antique handcrafted gold choker"
+                "intricate gold necklace with traditional craftsmanship",
+                "luxurious bridal gold jewellery piece",
+                "antique handcrafted gold ornament"
             ]
         )
 
-    custom_notes = st.text_input("Extra Details (Optional):", value="sharp focus, 8k uhd, photorealistic")
-
-    if st.button("Generate Shoot"):
-        with st.spinner("AI photo load ho rahi hai..."):
-            # Clean prompt
-            full_prompt = f"{ornament_type}, worn by {model_style}, {custom_notes}, high quality, realistic lighting"
-            encoded_prompt = urllib.parse.quote(full_prompt)
+    if st.button("Generate Free Photoshoot"):
+        with st.spinner("Photo create ho rahi hai..."):
+            prompt_text = f"professional product photography, {ornament_type}, worn by {model_style}, hyperrealistic, sharp focus, 8k uhd, masterpiece"
+            clean_prompt = urllib.parse.quote(prompt_text)
             
-            # Seed for unique render
-            seed = int(time.time())
+            # Free direct reliable engine (No Paywall / No Wallet)
+            free_image_url = f"https://image.pollinations.ai/prompt/{clean_prompt}?width=768&height=1024&nologo=true&enhance=false"
             
-            # Reliable ultra-fast endpoint (bypasses server timeout)
-            direct_image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=768&height=1024&seed={seed}&nologo=true"
-            
-            # Direct display
-            st.success("Photoshoot ready!")
-            st.image(direct_image_url, caption="Generated Studio Shoot", use_container_width=True)
-            st.markdown(f"[📥 Click yahan karein Image Download karne ke liye]({direct_image_url})")
+            st.success("Generation Complete!")
+            st.image(free_image_url, caption="Generated Studio Shoot", use_container_width=True)
+            st.markdown(f"[📥 Image Download Link]({free_image_url})")
