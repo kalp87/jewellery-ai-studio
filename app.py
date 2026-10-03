@@ -4,7 +4,7 @@ import requests
 import io
 
 st.set_page_config(page_title="Jewellery AI Studio", layout="wide")
-st.title("💎 Jewellery AI Studio (Official Free Engine)")
+st.title("💎 Jewellery AI Studio (FLUX Engine)")
 st.write("Professional Free AI Jewellery Photoshoot Generator")
 
 hf_token = st.sidebar.text_input("Enter Hugging Face API Token (hf_...):", type="password")
@@ -39,15 +39,14 @@ if uploaded_file:
         if not hf_token:
             st.warning("Please left sidebar me apna Hugging Face Token paste karein.")
         else:
-            with st.spinner("Photo generate ho rahi hai (High Quality Stable Engine)..."):
-                # Updated 2026 Hugging Face Endpoint
-                API_URL = "https://router.huggingface.co/hf-inference/models/runwayml/stable-diffusion-v1-5"
+            with st.spinner("FLUX engine se photo create ho rahi hai..."):
+                # Supported Serverless Model on HF Router
+                API_URL = "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell"
                 headers = {"Authorization": f"Bearer {hf_token}"}
                 
-                prompt = f"professional product photography, {ornament_type}, worn by {model_style}, highly detailed, sharp focus, 8k uhd, masterpiece"
+                prompt = f"hyperrealistic professional jewelry shoot, authentic Indian gold craftsmanship, {ornament_type}, worn by {model_style}, intricate gold filigree, sharp focus, 8k uhd, photorealistic skin"
                 payload = {
-                    "inputs": prompt,
-                    "parameters": {"negative_prompt": "blurry, low quality, deformed, extra limbs"}
+                    "inputs": prompt
                 }
                 
                 try:
