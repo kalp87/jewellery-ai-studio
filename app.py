@@ -1,11 +1,13 @@
 import streamlit as st
 from PIL import Image
-import urllib.parse
-import time
+import requests
+import io
 
 st.set_page_config(page_title="Jewellery AI Studio", layout="wide")
-st.title("💎 Jewellery AI Studio (100% Free)")
+st.title("💎 Jewellery AI Studio (Official Free Engine)")
 st.write("Professional Free AI Jewellery Photoshoot Generator")
+
+hf_token = st.sidebar.text_input("Enter Hugging Face API Token (hf_...):", type="password")
 
 uploaded_file = st.file_uploader("Upload Jewellery Photo", type=["jpg", "jpeg", "png"])
 
@@ -16,31 +18,56 @@ if uploaded_file:
     col1, col2 = st.columns(2)
     with col1:
         model_style = st.selectbox(
-            "Model & Setting Style:",
+            "Model & Background Style:",
             [
-                "Royal Indian Bride wearing traditional Silk Saree, studio portrait",
-                "Elegant woman in designer royal attire, cinematic lighting",
-                "Close-up luxury jewelry portrait, soft studio rim lighting"
+                "Royal Indian bride in red bridal saree, studio lights, closeup jewelry portrait",
+                "Indian royal woman in blue silk saree, elegant jewelry photoshoot",
+                "Modern elegant woman in evening luxury attire, studio portrait"
             ]
         )
     with col2:
         ornament_type = st.selectbox(
-            "Jewellery Details:",
+            "Ornament Type:",
             [
                 "intricate gold necklace with traditional craftsmanship",
-                "luxurious bridal gold jewellery piece",
-                "antique handcrafted gold ornament"
+                "luxurious bridal gold necklace set",
+                "antique handcrafted gold choker"
             ]
         )
 
-    if st.button("Generate Free Photoshoot"):
-        with st.spinner("Photo create ho rahi hai..."):
-            prompt_text = f"professional product photography, {ornament_type}, worn by {model_style}, hyperrealistic, sharp focus, 8k uhd, masterpiece"
-            clean_prompt = urllib.parse.quote(prompt_text)
-            
-            # Free direct reliable engine (No Paywall / No Wallet)
-            free_image_url = f"https://image.pollinations.ai/prompt/{clean_prompt}?width=768&height=1024&nologo=true&enhance=false"
-            
-            st.success("Generation Complete!")
-            st.image(free_image_url, caption="Generated Studio Shoot", use_container_width=True)
-            st.markdown(f"[📥 Image Download Link]({free_image_url})")
+    if st.button("Generate Photoshoot"):
+        if not hf_token:
+            st.warning("Please left sidebar me apna Hugging Face Token paste karein.")
+        else:
+            with st.spinner("Photo generate ho rahi hai (High Quality Stable Engine)..."):
+                # Updated 2026 Hugging Face Endpoint
+                API_URL = "https://router.huggingface.co/hf-inference/models/runwayml/stable-diffusion-v1-5"
+                headers = {"Authorization": f"Bearer {hf_token}"}
+                
+                prompt = f"professional product photography, {ornament_type}, worn by {model_style}, highly detailed, sharp focus, 8k uhd, masterpiece"
+                payload = {
+                    "inputs": prompt,
+                    "parameters": {"negative_prompt": "blurry, low quality, deformed, extra limbs"}
+                }
+                
+                try:
+                    response = requests.post(API_URL, headers=headers, json=payload, timeout=60)
+                    if response.status_code == 200:
+                        res_image = Image.open(io.BytesIO(response.content))
+                        st.success("Photoshoot ready!")
+                        st.image(res_image, caption="Generated Studio Shoot", use_container_width=True)
+                        
+                        buf = io.BytesIO()
+                        res_image.save(buf, format="JPEG")
+                        st.download_button(
+                            label="Download High-Res Image",
+                            data=buf.getvalue(),
+                            file_name="jewellery_shoot.jpg",
+                            mime="image/jpeg"
+                        )
+                    elif response.status_code == 503:
+                        st.info("Server model load kar raha hai. Kripya 20-30 second wait karke dubara button dabayein.")
+                    else:
+                        st.error(f"Server response: {response.status_code} - {response.text}")
+                except Exception as e:
+                    st.error(f"Connection Error: {e}")
